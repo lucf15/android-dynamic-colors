@@ -1,0 +1,9 @@
+<resources>
+    <style name="SampleTheme" parent="android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:fontFamily">sans</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:colorAccent">@color/studio_launcher</item>
+        <item name="android:windowSplashScreenBackground">@color/studio_background</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/studio_icon</item>
+    </style>
+</resources>

@@ -1,0 +1,41 @@
+[versions]
+agp = "9.4.0"
+kotlin = "2.4.10"
+annotation = "1.10.0"
+compose = "2026.08.00"
+activity = "1.13.0"
+junit = "4.13.2"
+robolectric = "4.14.1"
+testCore = "1.7.0"
+testRunner = "1.7.0"
+publish = "0.37.0"
+
+[libraries]
+coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version = "1.11.0" }
+kotlin-gradle-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
+annotation = { module = "androidx.annotation:annotation", version.ref = "annotation" }
+compose-bom = { module = "androidx.compose:compose-bom", version.ref = "compose" }
+compose-runtime = { module = "androidx.compose.runtime:runtime" }
+compose-ui = { module = "androidx.compose.ui:ui" }
+compose-graphics = { module = "androidx.compose.ui:ui-graphics" }
+dynamic-animation = { module = "androidx.dynamicanimation:dynamicanimation", version = "1.1.0" }
+compose-animation = { module = "androidx.compose.animation:animation" }
+compose-foundation = { module = "androidx.compose.foundation:foundation" }
+compose-tooling = { module = "androidx.compose.ui:ui-tooling" }
+compose-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
+compose-ui-test = { module = "androidx.compose.ui:ui-test-junit4" }
+compose-test-manifest = { module = "androidx.compose.ui:ui-test-manifest" }
+material3 = { module = "androidx.compose.material3:material3" }
+activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activity" }
+junit = { module = "junit:junit", version.ref = "junit" }
+robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
+test-core = { module = "androidx.test:core", version.ref = "testCore" }
+test-runner = { module = "androidx.test:runner", version.ref = "testRunner" }
+
+[plugins]
+legacy-kapt = { id = "com.android.legacy-kapt", version.ref = "agp" }
+android-library = { id = "com.android.library", version.ref = "agp" }
+android-application = { id = "com.android.application", version.ref = "agp" }
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+maven-publish = { id = "com.vanniktech.maven.publish", version.ref = "publish" }
+dokka = { id = "org.jetbrains.dokka", version = "2.2.0" }
