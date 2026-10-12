@@ -32,7 +32,7 @@ The latest framework validation passed 58 unit tests (19 core, 18 Compose, 17 Vi
 
 ## Repository and credentials
 
-The POM points to `https://github.com/lucf15/android-dynamic-colors`. Create that public repository before release, or update the root POM/SCM URLs to its actual location. The local project is not yet a Git repository.
+The POM points to `https://github.com/lucf15/android-dynamic-colors`. The repository is private during review. Make it public when ready for the open-source release, or update the root POM/SCM URLs if its location changes.
 
 Use your Central Portal account with the verified `io.github.lucf15` namespace. Configure a GitHub environment named `maven-central` with these secrets:
 
