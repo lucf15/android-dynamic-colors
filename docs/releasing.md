@@ -42,7 +42,7 @@ Use your Central Portal account with the verified `io.github.lucf15` namespace. 
 | `MAVEN_CENTRAL_PASSWORD` | Portal token password |
 | `SIGNING_IN_MEMORY_KEY` | ASCII-armored private signing key |
 | `SIGNING_IN_MEMORY_KEY_PASSWORD` | Key passphrase, if set |
-| `SIGNING_IN_MEMORY_KEY_ID` | Optional signing key ID; useful when selecting a signing subkey |
+| `SIGNING_IN_MEMORY_KEY_ID` | Optional 8-character hexadecimal signing key ID; useful when selecting a signing subkey |
 
 These names match TiffRenderer's publishing configuration. Secrets must be configured for this repository/environment; naming them does not copy values from another repository. The workflow maps them to the Vanniktech plugin's Gradle properties. See the [plugin's publishing documentation](https://vanniktech.github.io/gradle-maven-publish-plugin/central/).
 
