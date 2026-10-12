@@ -64,7 +64,7 @@ The GPG fingerprint identifies the public key. It is unrelated to Android keysto
 ## Release
 
 1. Finish app/device validation. Set `VERSION_NAME` to the release version, commit, and create the matching `v<version>` tag.
-2. Run **Stage Maven Central release** manually on that tag. The workflow rejects snapshots and mismatched tags, runs verification, then uses the `maven-central` environment to upload signed artifacts.
-3. Inspect the deployment in Central Portal and publish it there.
+2. Run **Maven Central release** manually on that tag. The workflow rejects snapshots and mismatched tags, runs verification, then uses the `maven-central` environment to upload signed artifacts. Leave `publish` unchecked to stage for manual review; check it to publish after Central validation.
+3. For a staged deployment, inspect it in Central Portal and publish it there.
 
-The workflow stages the deployment with `publishToMavenCentral`; automatic release is disabled by default. No upload or release has been performed as part of local preparation.
+The default uses `publishToMavenCentral` for staging. With `publish` enabled, the workflow uses `publishAndReleaseToMavenCentral`. Published versions cannot be overwritten.

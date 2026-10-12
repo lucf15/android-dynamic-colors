@@ -1,6 +1,12 @@
-name: Stage Maven Central release
+name: Maven Central release
 on:
   workflow_dispatch:
+    inputs:
+      publish:
+        description: Publish after Central validation (false stages for manual review)
+        type: boolean
+        default: false
+        required: true
 permissions:
   contents: read
 jobs:
@@ -27,13 +33,18 @@ jobs:
           packages: platform-tools
       - run: sdkmanager 'platforms;android-37.0' 'build-tools;36.0.0'
       - uses: gradle/actions/setup-gradle@ed408507eac070d1f99cc633dbcf757c94c7933a # v4
-      - name: Stage signed artifacts for manual Portal publication
+      - name: Upload signed artifacts to Maven Central
         run: |
           if [ -z "$ORG_GRADLE_PROJECT_signingInMemoryKeyId" ]; then
             unset ORG_GRADLE_PROJECT_signingInMemoryKeyId
           fi
-          ./gradlew publishToMavenCentral
+          if [ "$PUBLISH_RELEASE" = "true" ]; then
+            ./gradlew publishAndReleaseToMavenCentral
+          else
+            ./gradlew publishToMavenCentral
+          fi
         env:
+          PUBLISH_RELEASE: ${{ inputs.publish }}
           ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
           ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
           ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.SIGNING_IN_MEMORY_KEY }}

@@ -35,7 +35,7 @@ Choose the module for your UI:
 Add the dependency, with `google()` and `mavenCentral()` in your repositories:
 
 ```kotlin
-implementation("io.github.lucf15:dynamic-colors-compose:<version>")
+implementation("io.github.lucf15:dynamic-colors-compose:0.1.0")
 ```
 
 Replace the artifact name for another integration. Each UI module already includes the core. For a local build, follow the [local Maven instructions](docs/releasing.md#validate-locally).
