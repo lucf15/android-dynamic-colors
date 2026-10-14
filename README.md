@@ -15,9 +15,11 @@ Building a custom design system? Adding dynamic color to an existing screen? Bri
 
 Read a single accent, theme an entire screen, or explore every available tone. You control the shapes, typography, and layout; Android Dynamic Colors supplies the color values and framework-specific update APIs.
 
+**All 48 color roles are available from Android 12**, including roles whose platform resources arrived later. On Android 12–13, the library derives those roles from the system palette, with approximations for some surface shades. [See exactly what is backported →](#android-12-and-13-the-role-backport)
+
 ## Contents
 
-[See it](#see-it) · [Install](#install) · [First color](#your-first-dynamic-color) · [Compose](#compose) · [Fragments](#views-and-fragments) · [Custom Views](#custom-views) · [Data Binding](#xml-data-binding) · [Full palette](#palette-tones) · [Compatibility](#platform-behavior) · [Sample](#sample-app) · [Contributing](#development) · [License](#license)
+[See it](#see-it) · [Colors explained](#colors-explained) · [Install](#install) · [First color](#your-first-dynamic-color) · [Compose](#compose) · [Fragments](#views-and-fragments) · [Custom Views](#custom-views) · [Data Binding](#xml-data-binding) · [Full palette](#palette-tones) · [Android 12 backport](#android-12-and-13-the-role-backport) · [Compatibility](#platform-behavior) · [Sample](#sample-app) · [Contributing](#development) · [License](#license)
 
 ## See it
 
@@ -44,6 +46,40 @@ The Custom palette belongs to the sample. System screenshots use emulator seeds 
 - **Choose the level you need.** Read 48 named roles per mode, or pick from 13 tones in each available color family.
 - **Fit the framework.** Remember colors in Compose, collect them in a Fragment coroutine, or bind them directly in XML.
 - **Keep your app colors as a fallback.** System colors are available on Android 12+. Older devices can use the palette you already ship.
+
+## Colors explained
+
+### A palette gives you shades; a role tells you where to use one
+
+| Concept | Example | What it means |
+| --- | --- | --- |
+| **Palette family** | `Accent1`, `Neutral2` | A set of related shades from Android’s system resources. |
+| **Tone** | `Tone.T40` | One shade in a family, ordered by lightness. A tone is not a UI purpose. |
+| **Semantic role** | `primary`, `onPrimary`, `surface` | A color assigned to a purpose in a light or dark UI. |
+| **Theme attribute** | `?attr/colorPrimary` | A value resolved from an Android XML theme. This library does not populate your theme attributes. |
+| **Data Binding attribute** | `app:dynamicTextColor="@{ColorRole.OnSurface}"` | An adapter that reads a library role and applies it to one View. |
+
+For example, the Android 12–13 compatibility mapping uses **Accent 1, tone 40** for light `primary` and **Accent 1, tone 80** for dark `primary`. Reading `primary` selects a role for the requested mode. Reading `Accent1 / T40` selects that specific tone instead.
+
+**Use roles for ordinary UI.** Pair a background role with its foreground role: `primary` with `onPrimary`, `primaryContainer` with `onPrimaryContainer`, or `surface` with `onSurface`. The `on` prefix means text or icons drawn on that color. Validate contrast in your actual components, especially if you mix roles or use transparency.
+
+**Use palette tones for your own color system.** Pick a family and tone when you need to map Android’s colors into your own tokens. A raw tone does not choose a matching foreground or adjust itself to the purpose of your component.
+
+### What the library changes in your app
+
+The core returns color values. Compose helpers expose them as state and through `DynamicColorsTheme`; Views helpers deliver updates to your callback; Data Binding adapters apply them to the specified View properties.
+
+It does **not** replace your XML theme, set `?attr/colorPrimary`, install Compose `MaterialTheme`, or recolor every widget automatically. Apply the returned values in your components, or connect them to your existing theme. `ColorRole.Primary` is the enum identifier; `colors.primary` is the resolved color value. Neither is an Android resource ID.
+
+### Choose the API for the job
+
+| You need | Compose | Views | Core snapshot |
+| --- | --- | --- | --- |
+| Roles for one light/dark mode | `rememberDynamicColorSchemeOrNull()` | `collectDynamicColorRoles` / `observeDynamicColorRoles` | Read `.light` or `.dark` from `dynamicColorsOrNull(context)` |
+| Both light and dark role sets | `rememberDynamicColorsOrNull()` | `collectDynamicColors` / `observeDynamicColors` | `dynamicColorsOrNull(context)` |
+| Raw families and tones | `rememberDynamicPaletteOrNull()` | `collectDynamicPalette` / `observeDynamicPalette` | `dynamicPaletteOrNull(context)` |
+
+Core readers return fresh, immutable snapshots and do not observe changes. Framework adapters handle updates. Compose schemes and `.color(...)` extensions return Compose `Color`; core roles and ramps contain Android ARGB `Int` values.
 
 ## Install
 
@@ -283,6 +319,8 @@ Add `dynamic-colors-databinding`, enable `android.buildFeatures.dataBinding = tr
 </layout>
 ```
 
+These `app:dynamic…` attributes are **Data Binding expressions**, not Android theme attributes. Use them inside a `<layout>` with Data Binding enabled; writing `?attr/dynamicTextColor` in a normal layout is not equivalent.
+
 The adapter observes colors while the View is attached. On a device without system colors, the XML text color and background tint remain your fallback. See the [compiled sample layout](sample/src/main/res/layout/dynamic_color_label.xml).
 
 Kotlin Data Binding needs annotation processing. This project uses `com.android.legacy-kapt` with AGP 9’s built-in Kotlin; older Kotlin Android projects use their usual kapt setup.
@@ -339,13 +377,15 @@ val errorArgb: Int? = palette?.get(PaletteFamily.Error)?.get(Tone.T40)
 
 | Family | Android resource prefix | Available from |
 | --- | --- | --- |
-| Accent 1, 2, 3 | `system_accent1_`, `system_accent2_`, `system_accent3_` | API 31 |
-| Neutral 1, 2 | `system_neutral1_`, `system_neutral2_` | API 31 |
-| Error | `system_error_` | API 35 |
+| Accent 1, 2, 3 | `system_accent1_`, `system_accent2_`, `system_accent3_` | Android 12 / API 31 |
+| Neutral 1, 2 | `system_neutral1_`, `system_neutral2_` | Android 12 / API 31 |
+| Error | `system_error_` | Android 15 / API 35 |
 
 Every ramp contains **13 tones**: `T0`, `T10`, `T20`, `T30`, `T40`, `T50`, `T60`, `T70`, `T80`, `T90`, `T95`, `T99`, `T100`. There are **65 raw colors on API 31–34** and **78 on API 35+**. `error` is null before API 35; missing tones/families are not synthesized.
 
-Tone numbers increase with lightness. Android resource suffixes run in the opposite direction: suffix = `(100 - tone) × 10`, so `Tone.T40` corresponds to `_600`. The [sample explorer](sample/README.md) shows every available swatch and copies its resource name and ARGB value when tapped.
+Tone numbers increase with lightness: **T0 is black, T100 is white**. `T40` means tone 40; it is not 40% opacity, and it does not select a hue. The family supplies the hue/chroma characteristics. Only the 13 listed stops are exposed—there is no `T42` or arbitrary-tone generator.
+
+Android resource suffixes run in the opposite direction: suffix = `(100 - tone) × 10`. For example, `palette.accent1[Tone.T40]` reads `android.R.color.system_accent1_600`, while `Tone.T90` reads `system_accent1_100`. The [sample explorer](sample/README.md) shows every available swatch and copies its resource name and ARGB value when tapped.
 
 Pass `darkTheme = true/false` to `rememberDynamicPaletteOrNull` when previewing a specific resource mode. Raw ramps follow the requested configuration and can differ by mode on Android 17. In Views, use `collectDynamicPalette` or `observeDynamicPalette` for updates.
 
@@ -360,20 +400,85 @@ Tap a swatch to copy its Android resource name and ARGB value. The explorer show
 
 ## Platform behavior
 
-### Know which colors you’re reading
+### Availability at a glance
 
-The library reads Android’s system resources. The device’s selected palette and Android version determine the values; it does not generate a palette from an arbitrary seed.
+**Raw palette availability and role availability are separate.** A missing platform resource does not necessarily mean a missing library role.
 
-`dynamicColorsOrNull(context)` returns complete `light` and `dark` sets, each with **48 semantic roles**. `ColorRoles` has named ARGB properties and indexed access with `ColorRole`; the Compose `DynamicColorScheme` exposes the same roles as native `Color` properties.
+| Android version | Raw palette | Semantic role sets |
+| --- | --- | --- |
+| Android 11 and earlier / API < 31 | `null` | `null`; use your app’s fallback colors |
+| Android 12–13 / API 31–33 | Five families, 65 colors | All 48 roles per mode, derived from available tones; static baseline error colors |
+| Android 14 / API 34 | Five families, 65 colors | All 48 roles; platform role resources plus inverse/tint/scrim compatibility mappings |
+| Android 15–16 / API 35–36 | Six families, 78 colors, including Error | Same role strategy as API 34 |
+| Android 17+ / API 37+ | Six families, 78 colors | All 48 roles from platform resources, including dedicated inverse/tint/scrim resources |
 
-| Android version | Semantic role source |
+For example, **`colors.light.error` exists on Android 12**, but **`palette.error` is null until Android 15**. The first is a semantic role with a compatibility fallback; the second is a raw system family that we do not synthesize.
+
+### Android 12 and 13: the role backport
+
+Android 12–13 expose tonal palette resources but lack the newer platform semantic role resources. The library builds complete light and dark role sets from those available shades. Consumers can use `surfaceContainerLow`, `primaryFixed`, and the other roles without checking their individual platform introduction versions.
+
+The backport uses three rules:
+
+1. **Map roles to system tones.** For example, light `primary` uses Accent 1 / T40; dark `primary` uses Accent 1 / T80. Container, foreground, fixed, outline, and inverse roles have explicit mappings too.
+2. **Use available stops for surface shades.** When the desired tone is absent, use an existing stop. We do not run a CAM16/HCT solver to generate an intermediate color.
+3. **Supply baseline error colors.** The four error roles use fixed Material 3 baseline values because platform error-role resources are unavailable on these versions.
+
+**The backport supplies missing roles using existing palette tones.** It also does not backport dynamic colors below Android 12 or add Android resources/theme attributes to the OS.
+
+Here is the surface approximation compared with the inspected Material 3 implementation. Values are **light / dark** tones from the Neutral 2 (neutral-variant) family:
+
+| Role | Material 3 tone | This library’s available tone |
+| --- | --- | --- |
+| `background`, `surface` | 98 / 6 | 99 / 10 |
+| `surfaceBright` | 98 / 24 | 99 / 20 |
+| `surfaceDim` | 87 / 6 | 90 / 10 |
+| `surfaceContainerLowest` | 100 / 4 | 100 / 0 |
+| `surfaceContainerLow` | 96 / 10 | 95 / 10 |
+| `surfaceContainer` | 94 / 12 | 95 / 10 |
+| `surfaceContainerHigh` | 92 / 17 | 90 / 20 |
+| `surfaceContainerHighest` | 90 / 22 | 90 / 20 |
+
+**The visual consequence:** some surface levels share the same color on Android 12–13, and dark `surfaceContainerLowest` is black. These are approximations, not exact Material 3 color generation. If your design relies on subtle separation between every surface level, check it on Android 12–13 or use your own fallback scheme there.
+
+The complete mapping is in [DerivedColors.kt](dynamic-colors/src/main/kotlin/io/github/lucf15/dynamiccolors/internal/DerivedColors.kt).
+
+### Android 14 and later: read platform roles
+
+From API 34, most roles are read directly from Android’s semantic color resources. On API 34–36, `inversePrimary`, `inverseSurface`, and `inverseOnSurface` use the corresponding opposite-mode roles; `surfaceTint` uses the current mode’s `primary`, and `scrim` is black. From API 37, all five use their dedicated platform resources.
+
+Light and dark sets are resolved with separate resource configurations. Raw palettes represent one configuration. On Android 17, even roles named `*Fixed` and raw palette tones can differ between light and dark; “fixed” is not a guarantee that Android returns identical values in both modes.
+
+The library follows platform values where available, so its output is not guaranteed to match every Material 3 release. For example, it reads platform error roles from API 34, while the inspected AndroidX implementation keeps its baseline error colors. See [platform details](docs/platform-behavior.md) and the [AOSP/AndroidX source review](docs/review.md).
+
+### All 48 roles
+
+`dynamicColorsOrNull(context)` returns `light` and `dark` sets. Each exposes these properties; Compose’s `DynamicColorScheme` exposes the same names as native `Color` values.
+
+| Group | Properties |
 | --- | --- |
-| Below API 31 | Unavailable; readers return null |
-| API 31–33 | Real palette stops; nearest available stops for missing surface tones, baseline error colors |
-| API 34–36 | Platform semantic resources, with inverse/tint aliases and black scrim where dedicated resources are unavailable |
-| API 37+ | Dedicated inverse, tint, and scrim resources; light/dark contexts resolved independently |
+| Primary | `primary`, `onPrimary`, `primaryContainer`, `onPrimaryContainer` |
+| Secondary | `secondary`, `onSecondary`, `secondaryContainer`, `onSecondaryContainer` |
+| Tertiary | `tertiary`, `onTertiary`, `tertiaryContainer`, `onTertiaryContainer` |
+| Error | `error`, `onError`, `errorContainer`, `onErrorContainer` |
+| Background and surface | `background`, `onBackground`, `surface`, `onSurface`, `surfaceVariant`, `onSurfaceVariant`, `surfaceBright`, `surfaceDim` |
+| Surface containers | `surfaceContainerLowest`, `surfaceContainerLow`, `surfaceContainer`, `surfaceContainerHigh`, `surfaceContainerHighest` |
+| Outlines | `outline`, `outlineVariant` |
+| Primary fixed | `primaryFixed`, `primaryFixedDim`, `onPrimaryFixed`, `onPrimaryFixedVariant` |
+| Secondary fixed | `secondaryFixed`, `secondaryFixedDim`, `onSecondaryFixed`, `onSecondaryFixedVariant` |
+| Tertiary fixed | `tertiaryFixed`, `tertiaryFixedDim`, `onTertiaryFixed`, `onTertiaryFixedVariant` |
+| Inverse, tint, and scrim | `inversePrimary`, `inverseSurface`, `inverseOnSurface`, `surfaceTint`, `scrim` |
 
-These are platform values, not a promise of identical output to every Material 3 version. See the [source review](docs/review.md) and [platform behavior](docs/platform-behavior.md). Core snapshots retain no Context. Direct readers perform fresh reads; framework adapters own refresh behavior.
+The naming describes the intended use:
+
+- **`*Container`**: a background for content using the corresponding `on*Container` foreground. Surface container levels provide a progression for layered surfaces.
+- **`*Fixed` / `*FixedDim`**: the fixed-role accent pair, with a stronger tone for `Dim`; use `on*Fixed` or `on*FixedVariant` for foreground content. On the Android 12–13 backport these use the same tone assignments in both modes. Newer Android resource values can vary by configuration.
+- **`outline` / `outlineVariant`**: boundary colors with different emphasis.
+- **`inverseSurface` / `inverseOnSurface` / `inversePrimary`**: colors for elements that contrast with the surrounding theme, such as an inverse-colored message surface.
+- **`surfaceTint`**: a color your component may use for a surface tint. Reading it does not apply an elevation overlay.
+- **`scrim`**: a color for an obscuring layer. Your component decides its opacity and when to draw it.
+
+On API 31+, each role in a returned set has a color value. Below API 31, the whole read returns null. For raw palettes, the whole palette is null below API 31, and only its Error family is nullable on API 31–34.
 
 ## Sample app
 
