@@ -25,6 +25,8 @@ Read a single accent, theme an entire screen, or explore every available tone. Y
 
 **The same components, with a palette that follows the device.**
 
+Switch **Custom / System** to change where the colors come from. Custom uses the app’s own blue palette; System maps Android’s roles into the same components. The shapes, typography and interactions stay yours.
+
 | System violet · light | System violet · dark |
 | :---: | :---: |
 | <img src="docs/images/components-violet-light.png" width="280" alt="Component showcase with violet system colors in light mode"> | <img src="docs/images/components-violet-dark.png" width="280" alt="The same components with violet system colors in dark mode"> |
@@ -39,6 +41,15 @@ Read a single accent, theme an entire screen, or explore every available tone. Y
 | System · terracotta | <img src="docs/images/components-terracotta-light.png" width="260" alt="Terracotta system palette in light mode"> | <img src="docs/images/components-terracotta-dark.png" width="260" alt="Terracotta system palette in dark mode"> |
 
 The Custom palette belongs to the sample. System screenshots use emulator seeds `#6750A4`, `#006A6A`, and `#A35139` with Tonal Spot. The library reads the resulting Android resources; it does not generate palettes from seeds.
+
+</details>
+
+<details>
+<summary><strong>Native Views</strong></summary>
+
+<img src="docs/images/components-views-light.png" width="280" alt="The same component showcase rendered with custom native Android Views">
+
+Both renderers share the editable state, layout and colors.
 
 </details>
 
@@ -484,9 +495,15 @@ On API 31+, each role in a returned set has a color value. Below API 31, the who
 
 ### Try it on your own wallpaper
 
-Open the project in Android Studio and run **sample**. Switch between **Compose / Views**, choose **Custom / System**, and toggle light/dark mode. Change the device’s system palette to see the same components take on a different set of colors.
+Open the project in Android Studio and run **sample**.
 
-The gallery includes buttons, text input, switches, cards, dialogs, and the full palette explorer. Both renderers use custom components. [Explore the sample source and structure →](sample/README.md)
+1. Choose **Custom** for the app’s blue palette or **System** for Android’s current colors.
+2. Try the buttons, dialog, collection field, notification switch and feedback states.
+3. Switch **Compose / Views**. The editable state stays intact, and both renderers use custom components.
+4. Toggle light/dark mode, or change the device palette while System is selected.
+5. Scroll to **System palette** and tap a tone to copy its resource name and ARGB value.
+
+The palette explorer always shows Android’s resources, even when the components use Custom colors. On Android versions before 12, the components use the custom fallback and the explorer explains that system tones are unavailable. [See the sample’s color mappings and source structure →](sample/README.md#where-the-colors-go)
 
 ## Development
 

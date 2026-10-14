@@ -84,10 +84,10 @@ internal class StudioSegmentsView(
         val changed = selected != index
         selected = index
         background = context.studioShape(c.background, c.outline, 24)
-        indicator.background = context.studioShape(c.accentSurface, radius = 20)
+        indicator.background = context.studioShape(c.accent, radius = 20)
         labels.forEachIndexed { i, view ->
             cells[i].isSelected = i == index
-            view.setTextColor(if (i == index) c.onAccentSurface else c.muted)
+            view.setTextColor(if (i == index) c.onAccent else c.muted)
         }
         if (changed && isLaidOut)
             NativeMotion.spring(

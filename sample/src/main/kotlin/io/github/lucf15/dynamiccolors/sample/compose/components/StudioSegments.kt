@@ -58,7 +58,7 @@ internal fun Segments(
         Canvas(Modifier.matchParentSize()) {
             val width = size.width / labels.size
             drawRoundRect(
-                c.accentSurface,
+                c.accent,
                 Offset(width * position, 0f),
                 Size(width, size.height),
                 CornerRadius(size.height / 2),
@@ -83,7 +83,7 @@ internal fun Segments(
                     Label(
                         label,
                         size = 13,
-                        color = (if (index == selected) c.onAccentSurface else c.muted),
+                        color = (if (index == selected) c.onAccent else c.muted),
                         weight = FontWeight.SemiBold,
                     )
                 }

@@ -21,6 +21,7 @@ internal open class StudioTextView(
     init {
         text = value
         textSize = size.toFloat()
+        if (size >= 28) letterSpacing = -0.6f / size
         typeface = androidx.core.content.res.ResourcesCompat.getFont(context, R.font.inter)
         if (Build.VERSION.SDK_INT >= 26) fontVariationSettings = "'wght' $weight"
         else if (weight >= 600) setTypeface(typeface, Typeface.BOLD)

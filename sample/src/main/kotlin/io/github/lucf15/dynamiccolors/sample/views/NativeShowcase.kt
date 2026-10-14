@@ -4,7 +4,6 @@
  */
 package io.github.lucf15.dynamiccolors.sample.views
 
-import android.animation.ArgbEvaluator
 import android.animation.ValueAnimator
 import android.app.Dialog
 import android.content.Context
@@ -18,6 +17,7 @@ import io.github.lucf15.dynamiccolors.sample.model.ShowcaseState
 import io.github.lucf15.dynamiccolors.sample.theme.AppColors
 import io.github.lucf15.dynamiccolors.sample.theme.DarkDefaults
 import io.github.lucf15.dynamiccolors.sample.theme.LightDefaults
+import io.github.lucf15.dynamiccolors.sample.theme.interpolate
 import io.github.lucf15.dynamiccolors.sample.theme.toAppColors
 import io.github.lucf15.dynamiccolors.sample.views.components.StudioButtonView
 import io.github.lucf15.dynamiccolors.sample.views.components.StudioCardView
@@ -120,31 +120,13 @@ internal class NativeShowcase(context: Context) : LinearLayout(context) {
             return
         }
         val start = colors
-        val evaluator = ArgbEvaluator()
         paletteAnimation =
             ValueAnimator.ofFloat(0f, 1f).apply {
                 duration = 260
                 interpolator = PathInterpolator(0.4f, 0f, 0.2f, 1f)
                 addUpdateListener {
                     val fraction = it.animatedValue as Float
-                    fun color(a: Int, b: Int) = evaluator.evaluate(fraction, a, b) as Int
-                    applyColors(
-                        AppColors(
-                            color(start.background, next.background),
-                            color(start.surface, next.surface),
-                            color(start.text, next.text),
-                            color(start.muted, next.muted),
-                            color(start.accent, next.accent),
-                            color(start.onAccent, next.onAccent),
-                            color(start.outline, next.outline),
-                            color(start.accentSurface, next.accentSurface),
-                            color(start.onAccentSurface, next.onAccentSurface),
-                            color(start.secondary, next.secondary),
-                            color(start.error, next.error),
-                            color(start.errorSurface, next.errorSurface),
-                            color(start.onErrorSurface, next.onErrorSurface),
-                        ),
-                    )
+                    applyColors(start.interpolate(next, fraction))
                 }
                 start()
             }

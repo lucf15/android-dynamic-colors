@@ -36,6 +36,9 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import io.github.lucf15.dynamiccolors.PaletteFamily
@@ -63,6 +66,9 @@ internal fun StudioContent(
     onSystemChange: (Boolean) -> Unit,
     onFrameworkChange: (Int) -> Unit,
 ) {
+    val focusManager = LocalFocusManager.current
+    val hostView = LocalView.current
+    val keyboard = LocalSoftwareKeyboardController.current
     val scheme = DynamicColorsTheme.colorScheme
     val target = remember(scheme) { scheme.toStudioColors() }
     val palette = rememberDynamicPaletteOrNull(darkTheme = dark)
@@ -98,6 +104,9 @@ internal fun StudioContent(
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 contentPadding = rememberGalleryPadding(headerInset),
             ) {
+                item(key = "color-source") {
+                    ColorSourceNote(useSystem, isDynamicColorAvailable())
+                }
                 item(key = "gallery") {
                     // One stable list item gives both renderers the same scroll coordinates.
                     if (framework == 0) ComposeGallery(state, onStateChange)
@@ -129,8 +138,15 @@ internal fun StudioContent(
                 topInset,
                 onDarkChange,
                 onSystemChange,
-                onFrameworkChange,
-                Modifier.align(Alignment.TopCenter).onSizeChanged { headerHeight = it.height },
+                onFrameworkChange = {
+                    // Clear focus before removing the native field from the lazy list.
+                    focusManager.clearFocus(force = true)
+                    hostView.findFocus()?.clearFocus()
+                    keyboard?.hide()
+                    onFrameworkChange(it)
+                },
+                modifier =
+                    Modifier.align(Alignment.TopCenter).onSizeChanged { headerHeight = it.height },
             )
             Box(
                 Modifier.align(Alignment.BottomCenter)

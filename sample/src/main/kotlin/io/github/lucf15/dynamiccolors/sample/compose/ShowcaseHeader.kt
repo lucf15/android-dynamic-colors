@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -83,19 +84,30 @@ internal fun ShowcaseHeader(
                     Label(if (dark) "☀" else "☾", size = 22)
                 }
             }
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                Segments(
-                    listOf("Compose", "Views"),
-                    framework,
-                    { onFrameworkChange(it) },
-                    Modifier.weight(1f),
-                )
-                Segments(
-                    listOf("Custom", "System"),
-                    if (useSystem) 1 else 0,
-                    { onSystemChange(it == 1) },
-                    Modifier.weight(1f),
-                )
+            if (LocalDensity.current.fontScale > 1.15f) {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Segments(listOf("Compose", "Views"), framework, onFrameworkChange)
+                    Segments(
+                        listOf("Custom", "System"),
+                        if (useSystem) 1 else 0,
+                        { onSystemChange(it == 1) },
+                    )
+                }
+            } else {
+                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Segments(
+                        listOf("Compose", "Views"),
+                        framework,
+                        onFrameworkChange,
+                        Modifier.weight(1f),
+                    )
+                    Segments(
+                        listOf("Custom", "System"),
+                        if (useSystem) 1 else 0,
+                        { onSystemChange(it == 1) },
+                        Modifier.weight(1f),
+                    )
+                }
             }
             if (useSystem && !systemAvailable)
                 Label(

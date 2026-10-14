@@ -9,10 +9,13 @@ import android.view.Gravity
 import android.widget.LinearLayout
 import kotlin.math.roundToInt
 
-internal class StudioRow(context: Context) : LinearLayout(context) {
+internal class StudioRow(
+    context: Context,
+    private val verticalGravity: Int = Gravity.CENTER_VERTICAL,
+) : LinearLayout(context) {
     init {
         orientation = HORIZONTAL
-        gravity = Gravity.CENTER_VERTICAL
+        gravity = verticalGravity
         isBaselineAligned = false
     }
 
@@ -61,6 +64,9 @@ internal class StudioRow(context: Context) : LinearLayout(context) {
         super.onLayout(changed, left, top, right, bottom)
         for (index in 0 until childCount) {
             val child = getChildAt(index)
+            val childGravity =
+                (child.layoutParams as LayoutParams).gravity.takeIf { it >= 0 } ?: verticalGravity
+            if (childGravity and Gravity.VERTICAL_GRAVITY_MASK != Gravity.CENTER_VERTICAL) continue
             val free = height - paddingTop - paddingBottom - child.height
             child.offsetTopAndBottom(paddingTop + (free / 2f).roundToInt() - child.top)
         }
