@@ -11,6 +11,10 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache%202.0-blue" alt="Apache 2.0 license"></a>
 </p>
 
+<p align="center">
+  <img src="docs/images/article-cover.png" width="960" alt="Android dynamic colors for your own design system — using the system palette in Compose, Android Views and XML, with an explicit fallback for older devices">
+</p>
+
 Building a custom design system? Adding dynamic color to an existing screen? Bring Android’s system palette into the components you already own—in Compose, Views, or XML.
 
 Read a single accent, theme an entire screen, or explore every available tone. You control the shapes, typography, and layout; Android Dynamic Colors supplies the color values and framework-specific update APIs.
@@ -27,9 +31,9 @@ Read a single accent, theme an entire screen, or explore every available tone. Y
 
 Switch **Custom / System** to change where the colors come from. Custom uses the app’s own blue palette; System maps Android’s roles into the same components. The shapes, typography and interactions stay yours.
 
-| System violet · light | System violet · dark |
-| :---: | :---: |
-| <img src="docs/images/components-violet-light.png" width="280" alt="Component showcase with violet system colors in light mode"> | <img src="docs/images/components-violet-dark.png" width="280" alt="The same components with violet system colors in dark mode"> |
+<p align="center">
+  <img src="docs/images/component-showcase.png" width="960" alt="The component showcase in three modes: custom blue palette, violet system colors in light mode, and violet system colors in dark mode">
+</p>
 
 <details>
 <summary><strong>Compare Custom blue, System teal, and System terracotta</strong></summary>
