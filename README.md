@@ -1,50 +1,74 @@
 <p align="center">
-  <img src="docs/images/app-icon.svg" width="96" height="96" alt="Android Dynamic Colors app icon">
+  <img src="docs/images/app-icon.svg" width="88" height="88" alt="Android Dynamic Colors icon">
 </p>
 
-# Android Dynamic Colors
+<h1 align="center">Android Dynamic Colors</h1>
 
-Use Android's system colors in Compose, Views, and XML. Read named colors such as `primary` and `surface`, or individual shades from the full palette. The core library has no UI framework dependency; optional modules handle Compose state, View subscriptions, and Data Binding.
+<p align="center"><strong>Your components. The user’s colors.</strong></p>
+
+<p align="center">
+  <a href="https://central.sonatype.com/artifact/io.github.lucf15/dynamic-colors"><img src="https://img.shields.io/maven-central/v/io.github.lucf15/dynamic-colors?label=Maven%20Central" alt="Maven Central version"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache%202.0-blue" alt="Apache 2.0 license"></a>
+</p>
+
+Building a custom design system? Adding dynamic color to an existing screen? Bring Android’s system palette into the components you already own—in Compose, Views, or XML.
+
+Read a single accent, theme an entire screen, or explore every available tone. You control the shapes, typography, and layout; Android Dynamic Colors supplies the color values and framework-specific update APIs.
 
 ## Contents
 
-- [Install](#install)
-- [Quick start](#quick-start)
-- [Compose](#compose)
-- [Views and Fragments](#views-and-fragments)
-- [Custom Views](#custom-views)
-- [XML Data Binding](#xml-data-binding)
-- [Palette tones](#palette-tones)
-- [Platform behavior](#platform-behavior)
-- [Screenshots](#screenshots)
-- [Sample app](#sample-app)
-- [Development](#development)
-- [License](#license)
+[See it](#see-it) · [Install](#install) · [First color](#your-first-dynamic-color) · [Compose](#compose) · [Fragments](#views-and-fragments) · [Custom Views](#custom-views) · [Data Binding](#xml-data-binding) · [Full palette](#palette-tones) · [Compatibility](#platform-behavior) · [Sample](#sample-app) · [Contributing](#development) · [License](#license)
+
+## See it
+
+**The same components, with a palette that follows the device.**
+
+| System violet · light | System violet · dark |
+| :---: | :---: |
+| <img src="docs/images/components-violet-light.png" width="280" alt="Component showcase with violet system colors in light mode"> | <img src="docs/images/components-violet-dark.png" width="280" alt="The same components with violet system colors in dark mode"> |
+
+<details>
+<summary><strong>Compare Custom blue, System teal, and System terracotta</strong></summary>
+
+| Palette | Light | Dark |
+| --- | :---: | :---: |
+| Custom · blue | <img src="docs/images/components-custom-light.png" width="260" alt="Custom blue palette in light mode"> | <img src="docs/images/components-custom-dark.png" width="260" alt="Custom blue palette in dark mode"> |
+| System · teal | <img src="docs/images/components-teal-light.png" width="260" alt="Teal system palette in light mode"> | <img src="docs/images/components-teal-dark.png" width="260" alt="Teal system palette in dark mode"> |
+| System · terracotta | <img src="docs/images/components-terracotta-light.png" width="260" alt="Terracotta system palette in light mode"> | <img src="docs/images/components-terracotta-dark.png" width="260" alt="Terracotta system palette in dark mode"> |
+
+The Custom palette belongs to the sample. System screenshots use emulator seeds `#6750A4`, `#006A6A`, and `#A35139` with Tonal Spot. The library reads the resulting Android resources; it does not generate palettes from seeds.
+
+</details>
+
+- **Keep your design system.** Use native Compose `Color` values or Android ARGB integers in your own components. No Material UI dependency is required.
+- **Choose the level you need.** Read 48 named roles per mode, or pick from 13 tones in each available color family.
+- **Fit the framework.** Remember colors in Compose, collect them in a Fragment coroutine, or bind them directly in XML.
+- **Keep your app colors as a fallback.** System colors are available on Android 12+. Older devices can use the palette you already ship.
 
 ## Install
 
-Choose the module for your UI:
+Add `google()` and `mavenCentral()` to your repositories, then choose the module for your UI:
 
-| Your app uses | Add this artifact |
-| --- | --- |
-| Jetpack Compose | `dynamic-colors-compose` |
-| Android Views or View Binding | `dynamic-colors-views` |
-| XML Data Binding | `dynamic-colors-databinding` |
-| Only color values, without UI helpers | `dynamic-colors` |
+| Integration | Dependency | Minimum Android |
+| --- | --- | --- |
+| Compose | `io.github.lucf15:dynamic-colors-compose:0.1.0` | API 23 |
+| Views / View Binding | `io.github.lucf15:dynamic-colors-views:0.1.0` | API 21 |
+| XML Data Binding | `io.github.lucf15:dynamic-colors-databinding:0.1.0` | API 21 |
+| Color values only | `io.github.lucf15:dynamic-colors:0.1.0` | API 21 |
 
-Add the dependency, with `google()` and `mavenCentral()` in your repositories:
+For example, in your app’s `build.gradle.kts`:
 
 ```kotlin
-implementation("io.github.lucf15:dynamic-colors-compose:0.1.0")
+dependencies {
+    implementation("io.github.lucf15:dynamic-colors-compose:0.1.0")
+}
 ```
 
-Replace the artifact name for another integration. Each UI module already includes the core. For a local build, follow the [local Maven instructions](docs/releasing.md#validate-locally).
+Each UI module includes the core. Add multiple adapters if your app mixes frameworks, and keep them on the same version. **The Compose artifact requires compile SDK 37.** The core has no Compose, Views adapter, or coroutine dependency.
 
-**Android 12+ provides system colors.** On older devices, use your app's existing colors as a fallback. The modules run on API 21+, except Compose, which requires API 23+. The Compose dependency requires compile SDK 37.
+## Your first dynamic color
 
-## Quick start
-
-Read a color scheme that follows the device's light/dark mode:
+Start with one component. This Compose label uses the device’s primary color, falling back to your own blue when system colors are unavailable:
 
 ```kotlin
 import androidx.compose.foundation.text.BasicText
@@ -53,20 +77,22 @@ import androidx.compose.ui.graphics.Color
 import io.github.lucf15.dynamiccolors.compose.rememberDynamicColorSchemeOrNull
 
 @Composable
-fun Greeting() {
+fun AccentLabel() {
     val colors = rememberDynamicColorSchemeOrNull()
     BasicText(
-        text = "Hello, Android",
+        text = "Made for your palette",
         color = colors?.primary ?: Color(0xFF2563EB),
     )
 }
 ```
 
-The following sections cover whole-app themes, lifecycle ownership, and XML layouts.
+The helper follows light/dark mode and refreshes when the context or resource configuration changes. For a whole screen, provide a theme once.
 
 ## Compose
 
-Wrap the relevant subtree in `DynamicColorsTheme`. It remembers the system colors, selects light or dark roles, and exposes an immutable `DynamicColorScheme` containing Compose `Color` values.
+### Give your components a shared palette
+
+Supply your app’s light and dark fallback schemes, then read colors anywhere inside `DynamicColorsTheme`:
 
 ```kotlin
 import androidx.compose.foundation.background
@@ -103,17 +129,27 @@ fun StatusCard() {
 }
 ```
 
-Create your fallback once with `DynamicColorScheme { role -> /* your Compose Color */ }`, or convert an existing core `ColorRoles` with `toComposeColorScheme()`. The [sample mapping](sample/src/main/kotlin/io/github/lucf15/dynamiccolors/sample/theme/ComposeColors.kt) shows a complete app-owned palette. Custom schemes retain their Compose color spaces.
+`lightFallback` and `darkFallback` are your app’s `DynamicColorScheme` values. Define them once with `DynamicColorScheme { role -> /* your Compose Color */ }`, or convert core `ColorRoles` with `toComposeColorScheme()`. The [sample’s complete mapping](sample/src/main/kotlin/io/github/lucf15/dynamiccolors/sample/theme/ComposeColors.kt) shows how to connect an existing design palette.
 
-The provider refreshes on resource/configuration changes, supports nested themes, and uses your fallback when system colors are unavailable or disabled. It does not install `MaterialTheme`. Access outside a provider reports a setup error.
+Set `useSystemColors = false` to use your own scheme on every device—this is how the sample’s **Custom / System** switch works. Nested providers can theme individual parts of a screen. Read `DynamicColorsTheme.colorScheme` inside a provider; reading it outside one reports a setup error.
 
-For an existing theme implementation, use `rememberDynamicColorScheme(fallback, darkTheme)` or `rememberDynamicColorSchemeOrNull(darkTheme)`. `rememberDynamicColorsOrNull()` exposes both core light/dark sets when needed.
+### Already have a theme?
 
-For previews, wrap your theme with `DynamicColorsPreview { ... }`. Pass `colors = null, palette = null` to preview unavailable system colors. Fixtures apply only in inspection mode; they never replace runtime resources.
+Use `rememberDynamicColorScheme(fallback, darkTheme)` or `rememberDynamicColorSchemeOrNull(darkTheme)` inside your existing theme code. The scheme contains native Compose `Color` values, and custom schemes retain their color spaces. `rememberDynamicColorsOrNull()` exposes both core light/dark sets if you need them.
+
+`DynamicColorsTheme` provides colors to your components; it does not install `MaterialTheme` or restyle existing widgets.
+
+### Preview both paths
+
+Wrap your preview in `DynamicColorsPreview { ... }` to supply sample system colors. Use `DynamicColorsPreview(colors = null, palette = null) { ... }` to check your fallback. These fixtures apply only in inspection mode.
 
 ## Views and Fragments
 
-Use AndroidX Fragment and Lifecycle's `lifecycle-runtime-ktx` dependency. `collectDynamicColorRoles` selects the View's mode and owns its subscription until cancellation:
+### Let the View lifecycle own collection
+
+Use the suspend `collectDynamicColorRoles` extension inside `repeatOnLifecycle`. The subscription closes when collection is cancelled and starts fresh when the layout becomes active again.
+
+Add AndroidX Fragment and Lifecycle’s `lifecycle-runtime-ktx` dependency, then:
 
 ```kotlin
 import android.graphics.Color
@@ -143,7 +179,8 @@ class ColorsFragment : Fragment(R.layout.fragment_colors) {
 }
 ```
 
-A minimal `res/layout/fragment_colors.xml`:
+<details>
+<summary>Layout for this Fragment: <code>res/layout/fragment_colors.xml</code></summary>
 
 ```xml
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -157,15 +194,28 @@ A minimal `res/layout/fragment_colors.xml`:
 </FrameLayout>
 ```
 
-The example uses a simple white/black fallback; use your own mode-aware design palette in production. Pass `darkTheme = true` or `false` to override automatic mode selection.
+</details>
 
-Stopping the View lifecycle cancels collection and closes the subscription; restarting creates a fresh one. Use **`viewLifecycleOwner`**, because a Fragment can outlive its layout. With View Binding, capture the current binding locally in `onViewCreated()` and clear your binding field in `onDestroyView()` as usual. No subscription handle is needed.
+Use **`viewLifecycleOwner`**: a Fragment can outlive its layout. With View Binding, capture the current binding locally in `onViewCreated()` and clear your binding field in `onDestroyView()` as usual.
 
-`collectDynamicColors` provides both modes; `collectDynamicPalette` provides raw ramps. All collectors handle registration, callbacks, and cleanup on `Dispatchers.Main.immediate`, even when called from another dispatcher. Callbacks may suspend and run sequentially; slow consumers retain only the latest pending update. Callback failures propagate after cleanup. Collect multiple streams in separate child `launch` blocks. See [Android's lifecycle guidance](https://developer.android.com/topic/libraries/architecture/views/coroutines-views).
+The example uses a white/black fallback to keep setup small. Use your own light/dark palette in your app. Leave `darkTheme` unset to follow the View’s configuration, or pass `true` / `false` for an explicit mode.
+
+<details>
+<summary>Collecting multiple streams and handling updates</summary>
+
+`collectDynamicColors` provides both modes; `collectDynamicPalette` provides raw ramps. Launch each collector in its own child coroutine when you need more than one stream.
+
+Registration, callbacks, and cleanup run on `Dispatchers.Main.immediate`, even when collection starts on another dispatcher. Callbacks may suspend and run sequentially. A slow consumer receives only the latest pending update; callback failures propagate after cleanup.
+
+See [Android’s lifecycle guidance](https://developer.android.com/topic/libraries/architecture/views/coroutines-views).
+
+</details>
 
 ## Custom Views
 
-For a reusable custom View, attachment is a natural ownership boundary:
+### Observe while attached, close on detach
+
+A reusable View can own an `AutoCloseable` subscription directly:
 
 ```kotlin
 package com.example.app
@@ -199,13 +249,22 @@ class DynamicLabel @JvmOverloads constructor(
 }
 ```
 
-Inflate it using `<com.example.app.DynamicLabel ... />` in XML. For Canvas components, update `Paint` colors and call `invalidate()` in the callback. `observeDynamicColors` and `observeDynamicPalette` expose both modes or raw ramps when required.
+Use `<com.example.app.DynamicLabel ... />` in a layout. For a Canvas component, update your `Paint` colors and call `invalidate()` in the callback. `observeDynamicColors` and `observeDynamicPalette` provide both modes or raw ramps.
 
-Observe and close on the main thread. Subscriptions share **one attachment listener per View**, one pending refresh per View, and one snapshot read per kind per refresh. Attached Views share one application configuration callback. Handles close independently; closing the last removes the View listener. Detached observers pause and can resume. Permanently closing a handle releases its View/callback references. Repeated calls still represent separate subscriptions, so register once per owner rather than during each render.
+<details>
+<summary>What happens when several components observe colors?</summary>
+
+Observe and close on the main thread. Subscriptions on the same View share one attachment listener, one pending refresh, and one snapshot read per kind per refresh. Attached Views share one application configuration callback.
+
+Each handle closes independently. Closing the last removes the View listener. Detached observers pause and can resume on reattachment; closing a handle permanently releases its View and callback references. Register once per owner—repeated calls still create separate subscriptions.
+
+</details>
 
 ## XML Data Binding
 
-Add `dynamic-colors-databinding` and enable `android.buildFeatures.dataBinding = true`. Kotlin Data Binding needs annotation processing: this project uses `com.android.legacy-kapt` with AGP 9's built-in Kotlin; older Kotlin Android projects use their usual kapt setup.
+### Put the color role next to the component
+
+Add `dynamic-colors-databinding`, enable `android.buildFeatures.dataBinding = true`, and import `ColorRole` in your layout:
 
 ```xml
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -224,7 +283,12 @@ Add `dynamic-colors-databinding` and enable `android.buildFeatures.dataBinding =
 </layout>
 ```
 
-No color observer or color ViewModel is required. The [sample XML](sample/src/main/res/layout/dynamic_color_label.xml) is compiled against the separately packaged adapters.
+The adapter observes colors while the View is attached. On a device without system colors, the XML text color and background tint remain your fallback. See the [compiled sample layout](sample/src/main/res/layout/dynamic_color_label.xml).
+
+Kotlin Data Binding needs annotation processing. This project uses `com.android.legacy-kapt` with AGP 9’s built-in Kotlin; older Kotlin Android projects use their usual kapt setup.
+
+<details>
+<summary>All attributes, fallbacks, and rebinding behavior</summary>
 
 | Attribute | Target | Value |
 | --- | --- | --- |
@@ -240,9 +304,28 @@ A fallback can reference an app resource: `app:dynamicTextColorFallback="@{@colo
 
 Repeated binding updates reuse one subscription per View. Detach unregisters configuration observation; reattachment refreshes it. Removing the last role closes the subscription. `dynamicDarkTheme` applies to that View, not its descendants. Use `binding.lifecycleOwner = viewLifecycleOwner` when your expressions read LiveData; color observation itself follows attachment. `binding.unbind()` stops expression updates but does not reset an attached View's dynamic colors.
 
+</details>
+
 ## Palette tones
 
-The core has no UI dependency:
+### Build your own color tokens
+
+Named roles such as `primary`, `surface`, and `onSurface` give colors a UI purpose. Raw tones let you choose the exact shade for your own tokens—for example, a brand accent, a chart, or a custom illustration.
+
+In Compose:
+
+```kotlin
+import io.github.lucf15.dynamiccolors.PaletteFamily
+import io.github.lucf15.dynamiccolors.Tone
+import io.github.lucf15.dynamiccolors.compose.color
+import io.github.lucf15.dynamiccolors.compose.rememberDynamicPaletteOrNull
+
+// Inside a composable:
+val palette = rememberDynamicPaletteOrNull()
+val accent = palette?.color(PaletteFamily.Accent1, Tone.T40)
+```
+
+For Android ARGB values, read the core directly:
 
 ```kotlin
 import io.github.lucf15.dynamiccolors.PaletteFamily
@@ -264,9 +347,22 @@ Every ramp contains **13 tones**: `T0`, `T10`, `T20`, `T30`, `T40`, `T50`, `T60`
 
 Tone numbers increase with lightness. Android resource suffixes run in the opposite direction: suffix = `(100 - tone) × 10`, so `Tone.T40` corresponds to `_600`. The [sample explorer](sample/README.md) shows every available swatch and copies its resource name and ARGB value when tapped.
 
-In Compose, use `rememberDynamicPaletteOrNull()` and `palette.color(PaletteFamily.Accent1, Tone.T40)` for a native `Color?`. Pass `darkTheme = true/false` when previewing a specific resource mode. Raw ramps follow the requested configuration and can differ by mode on Android 17. In Views, use `collectDynamicPalette` or `observeDynamicPalette` for updates.
+Pass `darkTheme = true/false` to `rememberDynamicPaletteOrNull` when previewing a specific resource mode. Raw ramps follow the requested configuration and can differ by mode on Android 17. In Views, use `collectDynamicPalette` or `observeDynamicPalette` for updates.
+
+<details>
+<summary><strong>Explore the palette in the sample</strong></summary>
+
+<img src="docs/images/system-palette.png" width="300" alt="Palette explorer with tone numbers and hexadecimal color values">
+
+Tap a swatch to copy its Android resource name and ARGB value. The explorer shows every family available on the device.
+
+</details>
 
 ## Platform behavior
+
+### Know which colors you’re reading
+
+The library reads Android’s system resources. The device’s selected palette and Android version determine the values; it does not generate a palette from an arbitrary seed.
 
 `dynamicColorsOrNull(context)` returns complete `light` and `dark` sets, each with **48 semantic roles**. `ColorRoles` has named ARGB properties and indexed access with `ColorRole`; the Compose `DynamicColorScheme` exposes the same roles as native `Color` properties.
 
@@ -279,36 +375,28 @@ In Compose, use `rememberDynamicPaletteOrNull()` and `palette.color(PaletteFamil
 
 These are platform values, not a promise of identical output to every Material 3 version. See the [source review](docs/review.md) and [platform behavior](docs/platform-behavior.md). Core snapshots retain no Context. Direct readers perform fresh reads; framework adapters own refresh behavior.
 
-## Screenshots
-
-| Palette | Light | Dark |
-| --- | :---: | :---: |
-| Custom · blue | <img src="docs/images/components-custom-light.png" width="280" alt="Custom palette in light mode"> | <img src="docs/images/components-custom-dark.png" width="280" alt="Custom palette in dark mode"> |
-| System · violet `#6750A4` | <img src="docs/images/components-violet-light.png" width="280" alt="Violet palette in light mode"> | <img src="docs/images/components-violet-dark.png" width="280" alt="Violet palette in dark mode"> |
-| System · teal `#006A6A` | <img src="docs/images/components-teal-light.png" width="280" alt="Teal palette in light mode"> | <img src="docs/images/components-teal-dark.png" width="280" alt="Teal palette in dark mode"> |
-| System · terracotta `#A35139` | <img src="docs/images/components-terracotta-light.png" width="280" alt="Terracotta palette in light mode"> | <img src="docs/images/components-terracotta-dark.png" width="280" alt="Terracotta palette in dark mode"> |
-
-The Custom palette is defined by the sample. System examples use three emulator seeds with Tonal Spot; the library reads the resulting Android colors.
-
-<details>
-<summary>See the palette explorer</summary>
-
-<img src="docs/images/system-palette.png" width="300" alt="System palette explorer showing tone numbers and hexadecimal values">
-
-</details>
-
 ## Sample app
 
-Open the project in Android Studio and run **sample**. Switch between Compose and Views, compare Custom and System colors, and try both light and dark mode.
+### Try it on your own wallpaper
 
-The sample includes buttons, text input, switches, cards, dialogs, and the palette explorer. [Source layout and build instructions →](sample/README.md)
+Open the project in Android Studio and run **sample**. Switch between **Compose / Views**, choose **Custom / System**, and toggle light/dark mode. Change the device’s system palette to see the same components take on a different set of colors.
+
+The gallery includes buttons, text input, switches, cards, dialogs, and the full palette explorer. Both renderers use custom components. [Explore the sample source and structure →](sample/README.md)
 
 ## Development
 
-Use JDK 17 and Android SDK 37. Run `./gradlew verify` for formatting, library tests, lint, release builds, and sample compilation.
+Found a color that looks wrong on your device? [Open an issue](https://github.com/lucf15/android-dynamic-colors/issues) with the Android version, device, color role or tone, and a small reproducer. A screenshot helps show the difference you’re seeing.
 
-[Contributing](CONTRIBUTING.md) · [Platform behavior](docs/platform-behavior.md) · [Source validation](docs/review.md) · [Maven Central releases](docs/releasing.md)
+To work on the library, use JDK 17 and Android SDK 37, then run:
+
+```shell
+./gradlew verify
+```
+
+This checks Kotlin formatting, library tests, lint, release builds, and sample compilation. To try unpublished changes in another app, follow the [local Maven instructions](docs/releasing.md#validate-locally).
+
+[Contributing](CONTRIBUTING.md) · [Platform details](docs/platform-behavior.md) · [AOSP and AndroidX source validation](docs/review.md) · [Release instructions](docs/releasing.md)
 
 ## License
 
-[Apache-2.0](LICENSE). The sample's Inter font uses the [SIL Open Font License](sample/INTER-LICENSE.txt).
+[Apache-2.0](LICENSE). The sample’s Inter font uses the [SIL Open Font License](sample/INTER-LICENSE.txt).
